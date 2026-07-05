@@ -63,6 +63,21 @@ export default function Home() {
   }
 }
 
+const savePlaylist = async () => {
+  if (playlist.length === 0) return
+  try {
+    await axios.post(
+      'http://localhost:3001/api/playlists',
+      { name: playlistName, songs: playlist },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    alert('Playlist saved!')
+  } catch (err) {
+    console.error('Save failed:', err)
+    alert('Failed to save playlist')
+  }
+}
+
   const addToPlaylist = (song) => {
     if (playlist.find(s => s.itunes_track_id === song.itunes_track_id)) return
     const updated = [...playlist, song]
@@ -120,6 +135,19 @@ export default function Home() {
               onChange={e => setPlaylistName(e.target.value)}
             />
             <p style={styles.panelSubtitle}>{playlist.length} songs</p>
+
+            <button
+            style={{
+                ...styles.searchBtn,
+                width: '100%',
+                marginBottom: '16px',
+                opacity: playlist.length === 0 ? 0.5 : 1,
+            }}
+            onClick={savePlaylist}
+            disabled={playlist.length === 0}
+            >
+            save playlist
+            </button>
 
             {playlist.length === 0 && (
               <p style={styles.empty}>search for songs and add them here</p>

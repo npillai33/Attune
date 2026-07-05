@@ -1,5 +1,5 @@
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
@@ -14,6 +14,7 @@ export default function Navbar() {
     <div style={styles.nav}>
       <div style={styles.logo}>attune</div>
       <div style={styles.right}>
+        <Link to="/playlists" style={styles.navLink}>my playlists</Link>
         <span style={styles.username}>{user?.username}</span>
         <button style={styles.logout} onClick={handleLogout}>log out</button>
       </div>

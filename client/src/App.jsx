@@ -3,6 +3,8 @@ import { useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
+import Playlists from './pages/Playlists'
+import PlaylistDetail from './pages/PlaylistDetail'
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -20,6 +22,16 @@ function App() {
             <Home />
           </ProtectedRoute>
         } />
+        <Route path="/playlists" element={
+          <ProtectedRoute>
+            <Playlists />
+          </ProtectedRoute>
+        } />
+        <Route path="/playlists/:id" element={
+        <ProtectedRoute>
+          <PlaylistDetail />
+        </ProtectedRoute>
+      } />
       </Routes>
     </BrowserRouter>
   )
