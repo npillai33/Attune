@@ -2,13 +2,18 @@ import { useState } from 'react'
 import axios from 'axios'
 import Navbar from '../components/Navbar'
 import SongCard from '../components/SongCard'
+import { useAuth } from '../context/AuthContext'
 
 export default function Home() {
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [playlist, setPlaylist] = useState([])
   const [searching, setSearching] = useState(false)
+  const [recommendations, setRecommendations] = useState([])
+  const [loadingRecs, setLoadingRecs] = useState(false)
   const [playlistName, setPlaylistName] = useState('my playlist')
+
+  const { token } = useAuth()
 
   const handleSearch = async () => {
     if (!query.trim()) return
@@ -38,13 +43,37 @@ export default function Home() {
     }
   }
 
+  const fetchRecommendations = async (updatedPlaylist) => {
+  if (updatedPlaylist.length === 0) {
+    setRecommendations([])
+    return
+  }
+  setLoadingRecs(true)
+  try {
+    const res = await axios.post(
+      'http://localhost:3001/api/recommendations/playlist',
+      { songs: updatedPlaylist },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    setRecommendations(res.data.recommendations)
+  } catch (err) {
+    console.error('Recommendations failed:', err)
+  } finally {
+    setLoadingRecs(false)
+  }
+}
+
   const addToPlaylist = (song) => {
     if (playlist.find(s => s.itunes_track_id === song.itunes_track_id)) return
+    const updated = [...playlist, song]
     setPlaylist([...playlist, song])
+    fetchRecommendations(updated)
   }
 
   const removeFromPlaylist = (trackId) => {
+    const updated = playlist.filter(s => s.itunes_track_id !== trackId)
     setPlaylist(playlist.filter(s => s.itunes_track_id !== trackId))
+    fetchRecommendations(updated)
   }
 
   const isInPlaylist = (song) => {
@@ -113,7 +142,27 @@ export default function Home() {
 
           <div style={styles.panel}>
             <p style={styles.panelTitle}>recommended</p>
-            <p style={styles.panelSubtitle}>add songs to see recommendations</p>
+            <p style={styles.panelSubtitle}>
+                {loadingRecs ? 'finding matches...' : `${recommendations.length} matches for this playlist`}
+            </p>
+            {loadingRecs && (
+                <p style={styles.empty}>analyzing your playlist vibe...</p>
+            )}
+            {recommendations.map(song => (
+                <SongCard
+                key={song.itunes_track_id}
+                song={song}
+                onAdd={addToPlaylist}
+                isAdded={isInPlaylist(song)}
+                actionLabel="add"
+                />
+            ))}
+            {!loadingRecs && recommendations.length === 0 && playlist.length > 0 && (
+                <p style={styles.empty}>no matches found, try adding more songs</p>
+            )}
+            {playlist.length === 0 && (
+                <p style={styles.empty}>add songs to see recommendations</p>
+            )}
           </div>
         </div>
 

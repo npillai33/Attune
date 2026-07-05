@@ -1,24 +1,26 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+const express = require('express')
+const cors = require('cors')
+require('dotenv').config()
 
-const app = express();
+const app = express()
 
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth')
+const recommendationRoutes = require('./routes/recommendations')
 
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
-}));
-app.use(express.json());
+}))
+app.use(express.json())
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes)
+app.use('/api/recommendations', recommendationRoutes)
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Attune API is running' });
-});
+  res.json({ status: 'ok', message: 'Attune API is running' })
+})
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`Attune server running on port ${PORT}`);
-});
+  console.log(`Attune server running on port ${PORT}`)
+})
