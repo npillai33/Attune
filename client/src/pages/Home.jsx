@@ -12,6 +12,7 @@ export default function Home() {
   const [recommendations, setRecommendations] = useState([])
   const [loadingRecs, setLoadingRecs] = useState(false)
   const [playlistName, setPlaylistName] = useState('my playlist')
+  const [vibeMode, setVibeMode] = useState(false)
 
   const { token } = useAuth()
 
@@ -42,6 +43,23 @@ export default function Home() {
       setSearching(false)
     }
   }
+
+  const handleVibeSearch = async () => {
+  if (!query.trim()) return
+  setSearching(true)
+  try {
+    const res = await axios.post(
+      'http://localhost:3001/api/vibe/search',
+      { vibe: query },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    setSearchResults(res.data.results)
+  } catch (err) {
+    console.error('Vibe search failed:', err)
+  } finally {
+    setSearching(false)
+  }
+}
 
   const fetchRecommendations = async (updatedPlaylist) => {
   if (updatedPlaylist.length === 0) {
@@ -79,17 +97,17 @@ const savePlaylist = async () => {
 }
 
   const addToPlaylist = (song) => {
-    if (playlist.find(s => s.itunes_track_id === song.itunes_track_id)) return
-    const updated = [...playlist, song]
-    setPlaylist([...playlist, song])
-    fetchRecommendations(updated)
-  }
+  if (playlist.find(s => s.itunes_track_id === song.itunes_track_id)) return
+  const updated = [...playlist, song]
+  setPlaylist(updated)
+  fetchRecommendations(updated)
+}
 
-  const removeFromPlaylist = (trackId) => {
-    const updated = playlist.filter(s => s.itunes_track_id !== trackId)
-    setPlaylist(playlist.filter(s => s.itunes_track_id !== trackId))
-    fetchRecommendations(updated)
-  }
+const removeFromPlaylist = (trackId) => {
+  const updated = playlist.filter(s => s.itunes_track_id !== trackId)
+  setPlaylist(updated)
+  fetchRecommendations(updated)
+}
 
   const isInPlaylist = (song) => {
     return playlist.some(s => s.itunes_track_id === song.itunes_track_id)
@@ -102,15 +120,53 @@ const savePlaylist = async () => {
       <div style={styles.content}>
 
         <div style={styles.searchSection}>
+          <div style={styles.toggleRow}>
+            <button
+              style={{
+                ...styles.toggleBtn,
+                background: !vibeMode ? '#5B5FEF' : '#EFEFFC',
+                color: !vibeMode ? '#ffffff' : '#5B5FEF',
+              }}
+              onClick={() => {
+                setVibeMode(false)
+                setSearchResults([])
+                setQuery('')
+              }}
+            >
+              song search
+            </button>
+            <button
+              style={{
+                ...styles.toggleBtn,
+                background: vibeMode ? '#5B5FEF' : '#EFEFFC',
+                color: vibeMode ? '#ffffff' : '#5B5FEF',
+              }}
+              onClick={() => {
+                setVibeMode(true)
+                setSearchResults([])
+                setQuery('')
+              }}
+            >
+              vibe search ✦
+            </button>
+          </div>
+
           <div style={styles.searchBar}>
             <input
               style={styles.searchInput}
-              placeholder="search for a song or artist..."
+              placeholder={vibeMode ? 'try "sad rainy day" or "angry workout"...' : 'search for a song or artist...'}
               value={query}
               onChange={e => setQuery(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  vibeMode ? handleVibeSearch() : handleSearch()
+                }
+              }}
             />
-            <button style={styles.searchBtn} onClick={handleSearch}>
+            <button
+              style={styles.searchBtn}
+              onClick={vibeMode ? handleVibeSearch : handleSearch}
+            >
               {searching ? '...' : 'search'}
             </button>
           </div>
@@ -137,16 +193,16 @@ const savePlaylist = async () => {
             <p style={styles.panelSubtitle}>{playlist.length} songs</p>
 
             <button
-            style={{
+              style={{
                 ...styles.searchBtn,
                 width: '100%',
                 marginBottom: '16px',
                 opacity: playlist.length === 0 ? 0.5 : 1,
-            }}
-            onClick={savePlaylist}
-            disabled={playlist.length === 0}
+              }}
+              onClick={savePlaylist}
+              disabled={playlist.length === 0}
             >
-            save playlist
+              save playlist
             </button>
 
             {playlist.length === 0 && (
@@ -171,25 +227,25 @@ const savePlaylist = async () => {
           <div style={styles.panel}>
             <p style={styles.panelTitle}>recommended</p>
             <p style={styles.panelSubtitle}>
-                {loadingRecs ? 'finding matches...' : `${recommendations.length} matches for this playlist`}
+              {loadingRecs ? 'finding matches...' : `${recommendations.length} matches for this playlist`}
             </p>
             {loadingRecs && (
-                <p style={styles.empty}>analyzing your playlist vibe...</p>
+              <p style={styles.empty}>analyzing your playlist vibe...</p>
             )}
             {recommendations.map(song => (
-                <SongCard
+              <SongCard
                 key={song.itunes_track_id}
                 song={song}
                 onAdd={addToPlaylist}
                 isAdded={isInPlaylist(song)}
                 actionLabel="add"
-                />
+              />
             ))}
             {!loadingRecs && recommendations.length === 0 && playlist.length > 0 && (
-                <p style={styles.empty}>no matches found, try adding more songs</p>
+              <p style={styles.empty}>no matches found, try adding more songs</p>
             )}
             {playlist.length === 0 && (
-                <p style={styles.empty}>add songs to see recommendations</p>
+              <p style={styles.empty}>add songs to see recommendations</p>
             )}
           </div>
         </div>
@@ -317,5 +373,18 @@ const styles = {
     fontSize: '14px',
     padding: '4px',
     flexShrink: 0,
-  }
+  },
+  toggleRow: {
+  display: 'flex',
+  gap: '8px',
+  marginBottom: '12px',
+},
+toggleBtn: {
+  padding: '8px 20px',
+  borderRadius: '999px',
+  fontSize: '13px',
+  fontWeight: '500',
+  border: 'none',
+  cursor: 'pointer',
+}
 }

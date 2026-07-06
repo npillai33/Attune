@@ -49,7 +49,16 @@ async function getOrFetchSongTags(title, artist, songId) {
       )
     }
 
-    return tags.map(t => ({ name: t.name.toLowerCase(), weight: t.count }))
+    // Always re-read from DB after saving so shape is consistent
+    const saved = await pool.query(
+      `SELECT t.name, st.weight FROM song_tags st
+       JOIN tags t ON t.id = st.tag_id
+       WHERE st.song_id = $1`,
+      [songId]
+    )
+
+    return saved.rows
+
   } catch (err) {
     console.error('Last.fm fetch failed:', err.message)
     return []

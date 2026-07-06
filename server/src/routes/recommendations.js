@@ -45,15 +45,25 @@ router.post('/playlist', authMiddleware, async (req, res) => {
       return res.json({ recommendations: [] })
     }
 
-    const lastSong = songs[songs.length - 1]
-    const similarTracks = await getSimilarTracks(lastSong.title, lastSong.artist)
+    const allSimilarTracks = []
+    for (const song of songs) {
+      const similar = await getSimilarTracks(song.title, song.artist)
+      allSimilarTracks.push(...similar)
+    }
 
-    const candidates = similarTracks
+    const seen = new Set()
+    const candidates = allSimilarTracks
+      .filter(track => {
+        const key = `${track.name}-${track.artist.name}`.toLowerCase()
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
       .filter(track => !songs.find(s =>
         s.title.toLowerCase() === track.name.toLowerCase() &&
         s.artist.toLowerCase() === track.artist.name.toLowerCase()
       ))
-      .slice(0, 15)
+      .slice(0, 20)
 
     const scored = []
 
@@ -108,8 +118,8 @@ router.post('/playlist', authMiddleware, async (req, res) => {
     }
 
     scored.sort((a, b) => b.score - a.score)
-
     res.json({ recommendations: scored.slice(0, 6) })
+
   } catch (err) {
     console.error('Recommendation error:', err)
     res.status(500).json({ error: 'Failed to get recommendations' })

@@ -7,6 +7,7 @@ const app = express()
 const authRoutes = require('./routes/auth')
 const recommendationRoutes = require('./routes/recommendations')
 const playlistRoutes = require('./routes/playlists')
+const vibeRoutes = require('./routes/vibe')
 
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -17,6 +18,7 @@ app.use(express.json())
 app.use('/api/auth', authRoutes)
 app.use('/api/recommendations', recommendationRoutes)
 app.use('/api/playlists', playlistRoutes)
+app.use('/api/vibe', vibeRoutes)
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Attune API is running' })
