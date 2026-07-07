@@ -12,7 +12,7 @@ export default function Navbar() {
 
   return (
     <div style={styles.nav}>
-      <div style={styles.logo}>attune</div>
+      <Link to="/home" style={styles.logo}>attune</Link>
       <div style={styles.right}>
         <Link to="/playlists" style={styles.navLink}>my playlists</Link>
         <span style={styles.username}>{user?.username}</span>

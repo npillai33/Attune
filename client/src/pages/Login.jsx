@@ -22,7 +22,7 @@ export default function Login() {
     try {
       const res = await axios.post('http://localhost:3001/api/auth/login', form)
       login(res.data.user, res.data.token)
-      navigate('/')
+      navigate('/home')
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong')
     } finally {
