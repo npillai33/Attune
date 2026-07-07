@@ -10,12 +10,14 @@ async function getRecommendationsFromLLM(songs) {
 
   const prompt = `You are a music recommendation engine. Given this playlist, suggest 12 songs that match the overall vibe, mood, and genre blend of the collection. Consider the playlist as a whole, not just individual songs.
 
-Playlist: ${songList}
+    Playlist: ${songList}
 
-Return ONLY a JSON array of objects, each with "title" and "artist" fields. No other text, no markdown, no explanation. Do not suggest songs already in the playlist.
+    For each suggestion, include a short reason (max 8 words) explaining why it fits this specific playlist's vibe.
 
-Example format:
-[{"title": "Song Name", "artist": "Artist Name"}]`
+    Return ONLY a JSON array of objects, each with "title", "artist", and "reason" fields. No other text, no markdown, no explanation. Do not suggest songs already in the playlist.
+
+    Example format:
+    [{"title": "Song Name", "artist": "Artist Name", "reason": "matches the mellow late-night energy"}]`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5-20250929',

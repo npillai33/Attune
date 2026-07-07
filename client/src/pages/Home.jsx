@@ -262,10 +262,10 @@ const styles = {
   },
   content: {
     display: 'grid',
-    gridTemplateColumns: '1fr 360px',
+    gridTemplateColumns: '1fr 440px',
     gap: '24px',
     padding: '24px 32px',
-    maxWidth: '1200px',
+    maxWidth: '1320px',
     margin: '0 auto',
   },
   searchSection: {

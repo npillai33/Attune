@@ -9,6 +9,9 @@ export default function SongCard({ song, onAdd, actionLabel = 'add', isAdded = f
       <div style={styles.info}>
         <div style={styles.title}>{song.title}</div>
         <div style={styles.artist}>{song.artist}</div>
+        {song.reason && (
+    <div style={styles.reason}>✦ {song.reason}</div>
+    )}
       </div>
       <div style={styles.actions}>
         {song.preview_url && (
@@ -29,6 +32,7 @@ export default function SongCard({ song, onAdd, actionLabel = 'add', isAdded = f
     </div>
   )
 }
+
 
 const styles = {
   card: {
@@ -63,6 +67,12 @@ const styles = {
     fontSize: '12px',
     color: '#9A9AA6',
     marginTop: '2px',
+  },
+  reason: {
+  fontSize: '11px',
+  color: '#8A2BE2',
+  marginTop: '3px',
+  fontStyle: 'italic',
   },
   actions: {
     display: 'flex',

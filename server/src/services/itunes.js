@@ -36,7 +36,8 @@ async function verifySongsOnItunes(suggestions) {
         album: result.collectionName,
         artwork_url: result.artworkUrl100,
         preview_url: result.previewUrl,
-        spotify_search_url: `https://open.spotify.com/search/${encodeURIComponent(result.trackName + ' ' + result.artistName)}`
+        spotify_search_url: `https://open.spotify.com/search/${encodeURIComponent(result.trackName + ' ' + result.artistName)}`,
+        reason: suggestion.reason || null
       })
     } catch (err) {
       console.error(`iTunes verify failed for ${suggestion.title}:`, err.message)
