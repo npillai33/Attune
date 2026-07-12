@@ -8,7 +8,7 @@ const anthropic = new Anthropic({
 async function getRecommendationsFromLLM(songs) {
   const songList = songs.map(s => `"${s.title}" by ${s.artist}`).join(', ')
 
-  const prompt = `You are a music recommendation engine. Given this playlist, suggest 12 songs that match the overall vibe, mood, and genre blend of the collection. Consider the playlist as a whole, not just individual songs.
+  const prompt = `You are a music recommendation engine. Given this playlist, suggest 15 songs that match the overall vibe, mood, and genre blend of the collection. Consider the playlist as a whole, not just individual songs.
 
     Playlist: ${songList}
 
@@ -34,10 +34,12 @@ async function getVibeSearchFromLLM(vibe) {
 
 Suggest 15 real, popular songs that match this vibe. Include a mix of well-known and slightly deeper cuts, all real songs that exist.
 
-Return ONLY a JSON array of objects, each with "title" and "artist" fields. No other text, no markdown, no explanation.
+For each song, include 3 mood/genre tags describing it (single words or short phrases, lowercase).
+
+Return ONLY a JSON array of objects, each with "title", "artist", and "tags" fields. The "tags" field should be an array of 3 strings. No other text, no markdown, no explanation.
 
 Example format:
-[{"title": "Song Name", "artist": "Artist Name"}]`
+[{"title": "Song Name", "artist": "Artist Name", "tags": ["upbeat", "pop", "energetic"]}]`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5-20250929',

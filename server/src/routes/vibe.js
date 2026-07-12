@@ -23,6 +23,8 @@ router.post('/search', authMiddleware, async (req, res) => {
     // Step 2: verify each on iTunes for playable data
     const results = await verifySongsOnItunes(suggestions)
 
+    console.log('Vibe results with tags:', JSON.stringify(results.slice(0, 2), null, 2))
+
     res.json({ results })
 
   } catch (err) {

@@ -12,6 +12,13 @@ export default function SongCard({ song, onAdd, actionLabel = 'add', isAdded = f
         {song.reason && (
     <div style={styles.reason}>✦ {song.reason}</div>
     )}
+    {song.tags && song.tags.length > 0 && (
+    <div style={styles.tags}>
+      {song.tags.map((tag, i) => (
+        <span key={i} style={styles.tag}>{tag}</span>
+      ))}
+    </div>
+    )}
       </div>
       <div style={styles.actions}>
         {song.preview_url && (
@@ -90,5 +97,19 @@ const styles = {
     fontSize: '12px',
     fontWeight: '500',
     flexShrink: 0,
-  }
+  },
+  tags: {
+  display: 'flex',
+  gap: '6px',
+  marginTop: '6px',
+  flexWrap: 'wrap',
+},
+tag: {
+  fontSize: '10px',
+  padding: '3px 8px',
+  borderRadius: '999px',
+  background: '#EFEFFC',
+  color: '#5B5FEF',
+  fontWeight: '500',
+}
 }
