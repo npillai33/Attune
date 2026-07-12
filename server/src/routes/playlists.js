@@ -1,6 +1,7 @@
 const express = require('express')
 const pool = require('../db/index')
 const authMiddleware = require('../middleware/auth')
+const { getCoverMoodFromLLM } = require('../services/llm')
 
 const router = express.Router()
 
@@ -8,15 +9,15 @@ const router = express.Router()
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT p.id, p.name, p.created_at,
-        COUNT(ps.song_id) as song_count
-       FROM playlists p
-       LEFT JOIN playlist_songs ps ON ps.playlist_id = p.id
-       WHERE p.user_id = $1
-       GROUP BY p.id
-       ORDER BY p.created_at DESC`,
-      [req.user.userId]
-    )
+  `SELECT p.id, p.name, p.cover, p.created_at,
+    COUNT(ps.song_id) as song_count
+   FROM playlists p
+   LEFT JOIN playlist_songs ps ON ps.playlist_id = p.id
+   WHERE p.user_id = $1
+   GROUP BY p.id
+   ORDER BY p.created_at DESC`,
+  [req.user.userId]
+  )
     res.json({ playlists: result.rows })
   } catch (err) {
     console.error(err)
@@ -61,12 +62,12 @@ router.post('/', authMiddleware, async (req, res) => {
 
   try {
     // Create the playlist
-    const playlistResult = await pool.query(
-      `INSERT INTO playlists (user_id, name)
-       VALUES ($1, $2)
-       RETURNING *`,
-      [req.user.userId, name]
-    )
+  const playlistResult = await pool.query(
+  `INSERT INTO playlists (user_id, name, cover)
+   VALUES ($1, $2, $3)
+   RETURNING *`,
+  [req.user.userId, name, req.body.cover || null]
+)
 
     const playlist = playlistResult.rows[0]
 
@@ -113,6 +114,48 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to delete playlist' })
+  }
+})
+
+// Generate a cover mood from playlist songs via LLM
+router.post('/generate-cover', authMiddleware, async (req, res) => {
+  const { songs } = req.body
+
+  if (!songs || songs.length === 0) {
+    return res.status(400).json({ error: 'Songs are required' })
+  }
+
+  try {
+    const mood = await getCoverMoodFromLLM(songs)
+    res.json({ cover: mood })
+  } catch (err) {
+    console.error('Cover generation failed:', err)
+    res.status(500).json({ error: 'Failed to generate cover' })
+  }
+})
+
+// Update a playlist's name and/or cover
+router.patch('/:id', authMiddleware, async (req, res) => {
+  const { name, cover } = req.body
+
+  try {
+    const result = await pool.query(
+      `UPDATE playlists
+       SET name = COALESCE($1, name),
+           cover = COALESCE($2, cover)
+       WHERE id = $3 AND user_id = $4
+       RETURNING *`,
+      [name || null, cover || null, req.params.id, req.user.userId]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Playlist not found' })
+    }
+
+    res.json({ playlist: result.rows[0] })
+  } catch (err) {
+    console.error('Update failed:', err)
+    res.status(500).json({ error: 'Failed to update playlist' })
   }
 })
 

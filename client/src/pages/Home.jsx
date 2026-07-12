@@ -13,6 +13,7 @@ export default function Home() {
   const [loadingRecs, setLoadingRecs] = useState(false)
   const [playlistName, setPlaylistName] = useState('my playlist')
   const [vibeMode, setVibeMode] = useState(false)
+  const [editingName, setEditingName] = useState(false)
 
   const { token } = useAuth()
 
@@ -185,12 +186,24 @@ const removeFromPlaylist = (trackId) => {
 
         <div style={styles.sidebar}>
           <div style={styles.panel}>
-            <input
-              style={styles.playlistName}
-              value={playlistName}
-              onChange={e => setPlaylistName(e.target.value)}
-            />
-            <p style={styles.panelSubtitle}>{playlist.length} songs</p>
+            <div style={styles.playlistNameRow}>
+              {editingName ? (
+                <input
+                  style={styles.playlistNameInput}
+                  value={playlistName}
+                  onChange={e => setPlaylistName(e.target.value)}
+                  onBlur={() => setEditingName(false)}
+                  onKeyDown={e => e.key === 'Enter' && setEditingName(false)}
+                  autoFocus
+                />
+              ) : (
+                <span style={styles.playlistNameText}>{playlistName}</span>
+              )}
+              <span
+                style={styles.pencilIcon}
+                onClick={() => setEditingName(!editingName)}
+              >✎</span>
+            </div>
 
             <button
               style={{
@@ -322,15 +335,39 @@ const styles = {
     color: '#9A9AA6',
     marginBottom: '16px',
   },
-  playlistName: {
+  playlistNameRow: {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  marginBottom: '4px',
+  },
+  playlistNameText: {
     fontSize: '16px',
     fontWeight: '600',
     color: '#16161A',
-    background: 'none',
-    border: 'none',
+    flex: 1,
+    minWidth: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  playlistNameInput: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#16161A',
+    background: '#FAFAFC',
+    border: '1.5px solid #5B5FEF',
+    borderRadius: '6px',
+    padding: '4px 8px',
     outline: 'none',
-    width: '100%',
-    marginBottom: '4px',
+    flex: 1,
+    minWidth: 0,
+  },
+  pencilIcon: {
+    fontSize: '20px',
+    color: '#9A9AA6',
+    flexShrink: 0,
+    cursor: 'pointer',
   },
   empty: {
     fontSize: '13px',

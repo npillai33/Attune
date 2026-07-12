@@ -65,4 +65,27 @@ function parseSongJSON(text) {
   }
 }
 
-module.exports = { getRecommendationsFromLLM, getVibeSearchFromLLM }
+// Ask the LLM to pick a mood cover for a playlist based on its songs
+async function getCoverMoodFromLLM(songs) {
+  const songList = songs.map(s => `"${s.title}" by ${s.artist}`).join(', ')
+  const moods = ['euphoria', 'dreamy', 'moody', 'upbeat', 'smooth', 'electric', 'mellow', 'soulful', 'hype', 'dark']
+
+  const prompt = `Given this playlist, pick the single mood that best represents its overall vibe.
+
+Playlist: ${songList}
+
+Choose exactly ONE from this list: ${moods.join(', ')}
+
+Return ONLY the single mood word, nothing else. No punctuation, no explanation.`
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-5-20250929',
+    max_tokens: 20,
+    messages: [{ role: 'user', content: prompt }]
+  })
+
+  const mood = response.content[0].text.trim().toLowerCase()
+  return moods.includes(mood) ? mood : 'smooth'
+}
+
+module.exports = { getRecommendationsFromLLM, getVibeSearchFromLLM, getCoverMoodFromLLM }

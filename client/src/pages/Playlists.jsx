@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import { getCoverStyle } from '../covers'
 
 export default function Playlists() {
   const [playlists, setPlaylists] = useState([])
@@ -63,7 +64,7 @@ export default function Playlists() {
               onClick={() => navigate(`/playlists/${playlist.id}`)}
             >
               <div style={styles.cardLeft}>
-                <div style={styles.cardIcon}>♪</div>
+                <div style={{ ...styles.cardIcon, background: getCoverStyle(playlist.cover) }}></div>
                 <div style={styles.cardInfo}>
                   <p style={styles.cardName}>{playlist.name}</p>
                   <p style={styles.cardMeta}>{playlist.song_count} songs</p>
@@ -140,12 +141,6 @@ const styles = {
     width: '48px',
     height: '48px',
     borderRadius: '10px',
-    background: '#EFEFFC',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '20px',
-    color: '#5B5FEF',
     flexShrink: 0,
   },
   cardInfo: {
