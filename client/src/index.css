@@ -1,3 +1,48 @@
+:root {
+  /* Backgrounds */
+  --bg: #0F0325;
+  --bg-2: #150730;
+
+  /* Wisteria / décor */
+  --wisteria: #BC96E6;
+  --wisteria-dim: rgba(188, 150, 230, 0.25);
+
+  /* Glass cards — iridescent bubble */
+  --glass-bg: linear-gradient(135deg, rgba(240,230,255,0.55) 0%, rgba(214,200,242,0.42) 45%, rgba(190,230,240,0.38) 100%);
+  --glass-border: rgba(255,250,255,0.4);
+  --glass-sheen: inset 0 1px 1px rgba(255,255,255,0.85), inset 0 -12px 24px rgba(188,150,230,0.12), 0 4px 16px rgba(15,3,37,0.3);
+  --glass-inner: rgba(255,255,255,0.35);
+
+  /* Actions */
+  --mint: #7FE3D8;
+  --mint-bright: #D6FFF6;
+
+  /* Transitional / states */
+  --berry: #F31651;
+  --berry-deep: #C2185B;
+
+  /* Extended accents */
+  --chartreuse: #80e91c;
+  --bubblegum: #FF8FC7;
+  --teal-bright: #2EE6D6;
+  --pale-yellow: #FCE96A;
+  --coral: #f68ba0;
+
+  /* Text on dark bg */
+  --text-on-dark: #F4EEF9;
+  --text-on-dark-muted: #C9B8E8;
+
+  /* Text on glass cards */
+  --text-on-glass: #1A0733;
+  --text-on-glass-muted: #4A2D6B;
+  --text-on-glass-accent: #7B3F9E;
+
+  /* Fonts */
+  --font-logo: 'Rock Salt', cursive;
+  --font-display: 'Bungee', cursive;
+  --font-body: 'Oswald', sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -5,9 +50,14 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #ffffff;
-  color: #16161A;
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text-on-dark);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
 }
 
 a {
@@ -19,9 +69,34 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
+  font-family: var(--font-body);
 }
 
 input {
   outline: none;
   border: none;
+  font-family: var(--font-body);
+}
+
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-sheen);
+  overflow: hidden;
+}
+
+/* iridescent sheen streak across the top */
+.glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 60%, transparent 100%);
+  pointer-events: none;
+  border-radius: inherit;
 }

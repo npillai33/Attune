@@ -26,8 +26,28 @@ export const COVER_LABELS = {
   dark: 'dark',
 }
 
-export function getCoverStyle(coverKey) {
-  return COVERS[coverKey] || COVERS.smooth
+const HEX = /^#[0-9A-Fa-f]{6}$/
+
+export function getCoverStyle(cover) {
+  if (!cover) return COVERS.smooth
+
+  // preset key
+  if (COVERS[cover]) return COVERS[cover]
+
+  // custom: "custom:#RRGGBB:#RRGGBB:angle"
+  if (cover.startsWith('custom:')) {
+    const [, c1, c2, angle] = cover.split(':')
+    if (HEX.test(c1) && HEX.test(c2)) {
+      const deg = Number.parseInt(angle, 10)
+      return `linear-gradient(${Number.isFinite(deg) ? deg : 135}deg, ${c1}, ${c2})`
+    }
+  }
+
+  return COVERS.smooth
+}
+
+export function buildCustomCover(c1, c2, angle = 135) {
+  return `custom:${c1}:${c2}:${angle}`
 }
 
 export const COVER_KEYS = Object.keys(COVERS)

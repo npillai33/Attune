@@ -65,27 +65,53 @@ function parseSongJSON(text) {
   }
 }
 
-// Ask the LLM to pick a mood cover for a playlist based on its songs
-async function getCoverMoodFromLLM(songs) {
+// Ask the LLM to design a gradient cover from the playlist's vibe
+async function getCoverMoodFromLLM(songs, playlistName = '') {
   const songList = songs.map(s => `"${s.title}" by ${s.artist}`).join(', ')
-  const moods = ['euphoria', 'dreamy', 'moody', 'upbeat', 'smooth', 'electric', 'mellow', 'soulful', 'hype', 'dark']
 
-  const prompt = `Given this playlist, pick the single mood that best represents its overall vibe.
+  const prompt = `You are designing album cover art for a playlist.
 
-Playlist: ${songList}
+Playlist name: ${playlistName || 'untitled'}
+Songs: ${songList}
 
-Choose exactly ONE from this list: ${moods.join(', ')}
+Design a two-color linear gradient that captures the overall mood, energy, and feel of this playlist. Use the full color spectrum — pick whatever colors genuinely fit the vibe. Consider genre, era, and emotional tone.
 
-Return ONLY the single mood word, nothing else. No punctuation, no explanation.`
+Return ONLY a JSON object with:
+- "color1": hex string like "#1A2B3C" (the gradient start)
+- "color2": hex string like "#4D5E6F" (the gradient end)
+- "angle": integer 0-360 (gradient direction)
+- "name": a 1-2 word evocative name for this gradient, lowercase
+
+No other text, no markdown.
+
+Example: {"color1": "#2E1A47", "color2": "#F76B8A", "angle": 135, "name": "dusk fever"}`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 20,
+    max_tokens: 200,
     messages: [{ role: 'user', content: prompt }]
   })
 
-  const mood = response.content[0].text.trim().toLowerCase()
-  return moods.includes(mood) ? mood : 'smooth'
+  try {
+    const cleaned = response.content[0].text.replace(/```json/g, '').replace(/```/g, '').trim()
+    const parsed = JSON.parse(cleaned)
+
+    const HEX = /^#[0-9A-Fa-f]{6}$/
+    if (!HEX.test(parsed.color1) || !HEX.test(parsed.color2)) {
+      return { cover: 'smooth', name: 'smooth' }
+    }
+
+    const angle = Number.parseInt(parsed.angle, 10)
+    const safeAngle = Number.isFinite(angle) ? Math.max(0, Math.min(360, angle)) : 135
+
+    return {
+      cover: `custom:${parsed.color1}:${parsed.color2}:${safeAngle}`,
+      name: parsed.name || 'custom',
+    }
+  } catch (err) {
+    console.error('Cover generation parse failed:', err.message)
+    return { cover: 'smooth', name: 'smooth' }
+  }
 }
 
 module.exports = { getRecommendationsFromLLM, getVibeSearchFromLLM, getCoverMoodFromLLM }

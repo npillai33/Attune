@@ -3,6 +3,7 @@ import axios from 'axios'
 import Navbar from '../components/Navbar'
 import SongCard from '../components/SongCard'
 import { useAuth } from '../context/AuthContext'
+import BackgroundNotes from '../components/BackgroundNotes'
 
 export default function Home() {
   const [query, setQuery] = useState('')
@@ -116,6 +117,7 @@ const removeFromPlaylist = (trackId) => {
 
   return (
     <div style={styles.page}>
+      <BackgroundNotes />
       <Navbar />
 
       <div style={styles.content}>
@@ -125,8 +127,10 @@ const removeFromPlaylist = (trackId) => {
             <button
               style={{
                 ...styles.toggleBtn,
-                background: !vibeMode ? '#5B5FEF' : '#EFEFFC',
-                color: !vibeMode ? '#ffffff' : '#5B5FEF',
+                background: !vibeMode ? 'var(--mint)' : 'transparent',
+                color: !vibeMode ? '#0F0325' : 'var(--mint)',
+                border: !vibeMode ? 'none' : '1.5px solid rgba(127,227,216,0.5)',
+                boxShadow: !vibeMode ? '0 0 18px rgba(127,227,216,0.35)' : 'none',
               }}
               onClick={() => {
                 setVibeMode(false)
@@ -139,8 +143,10 @@ const removeFromPlaylist = (trackId) => {
             <button
               style={{
                 ...styles.toggleBtn,
-                background: vibeMode ? '#5B5FEF' : '#EFEFFC',
-                color: vibeMode ? '#ffffff' : '#5B5FEF',
+                background: vibeMode ? 'var(--berry)' : 'transparent',
+                color: vibeMode ? '#FFFFFF' : 'var(--berry)',
+                border: vibeMode ? 'none' : '1.5px solid rgba(243,22,81,0.5)',
+                boxShadow: vibeMode ? '0 0 18px rgba(243,22,81,0.4)' : 'none',
               }}
               onClick={() => {
                 setVibeMode(true)
@@ -165,11 +171,16 @@ const removeFromPlaylist = (trackId) => {
               }}
             />
             <button
-              style={styles.searchBtn}
-              onClick={vibeMode ? handleVibeSearch : handleSearch}
-            >
-              {searching ? '...' : 'search'}
-            </button>
+            style={{
+              ...styles.searchBtn,
+              background: vibeMode ? 'var(--berry)' : 'var(--mint)',
+              color: vibeMode ? '#FFFFFF' : '#0F0325',
+              boxShadow: vibeMode ? '0 0 18px rgba(243,22,81,0.4)' : '0 0 18px rgba(127,227,216,0.35)',
+            }}
+            onClick={vibeMode ? handleVibeSearch : handleSearch}
+          >
+            {searching ? '...' : 'search'}
+          </button>
           </div>
 
           <div style={styles.results}>
@@ -184,39 +195,29 @@ const removeFromPlaylist = (trackId) => {
           </div>
         </div>
 
-        <div style={styles.sidebar}>
+      <div style={styles.sidebar}>
           <div style={styles.panel}>
-            <div style={styles.playlistNameRow}>
-              {editingName ? (
-                <input
-                  style={styles.playlistNameInput}
-                  value={playlistName}
-                  onChange={e => setPlaylistName(e.target.value)}
-                  onBlur={() => setEditingName(false)}
-                  onKeyDown={e => e.key === 'Enter' && setEditingName(false)}
-                  autoFocus
-                />
-              ) : (
-                <span style={styles.playlistNameText}>{playlistName}</span>
-              )}
-              <span
-                style={styles.pencilIcon}
-                onClick={() => setEditingName(!editingName)}
-              >✎</span>
+            <div style={styles.panelHeader}>
+              <div style={styles.panelHeaderLeft}>
+                {editingName ? (
+                  <input
+                    style={styles.playlistNameInput}
+                    value={playlistName}
+                    onChange={e => setPlaylistName(e.target.value)}
+                    onBlur={() => setEditingName(false)}
+                    onKeyDown={e => e.key === 'Enter' && setEditingName(false)}
+                    autoFocus
+                  />
+                ) : (
+                  <span style={styles.playlistNameText}>{playlistName}</span>
+                )}
+                <span
+                  style={styles.pencilIcon}
+                  onClick={() => setEditingName(!editingName)}
+                >✎</span>
+              </div>
+              <span style={styles.countLabel}>{playlist.length} songs</span>
             </div>
-
-            <button
-              style={{
-                ...styles.searchBtn,
-                width: '100%',
-                marginBottom: '16px',
-                opacity: playlist.length === 0 ? 0.5 : 1,
-              }}
-              onClick={savePlaylist}
-              disabled={playlist.length === 0}
-            >
-              save playlist
-            </button>
 
             {playlist.length === 0 && (
               <p style={styles.empty}>search for songs and add them here</p>
@@ -235,16 +236,26 @@ const removeFromPlaylist = (trackId) => {
                 >✕</button>
               </div>
             ))}
+
+            {playlist.length > 0 && (
+              <div style={styles.saveRow}>
+                <button style={styles.saveBtn} onClick={savePlaylist}>
+                  save playlist
+                </button>
+              </div>
+            )}
           </div>
 
           <div style={styles.panel}>
-            <p style={styles.panelTitle}>recommended</p>
-            <p style={styles.panelSubtitle}>
-              {loadingRecs ? 'finding matches...' : `${recommendations.length} matches for this playlist`}
-            </p>
-            {loadingRecs && (
-              <p style={styles.empty}>analyzing your playlist vibe...</p>
-            )}
+            <div style={styles.panelHeader}>
+              <span style={styles.panelTitle}>recommended</span>
+              <span style={styles.countLabel}>
+                {loadingRecs ? 'finding...' : `${recommendations.length} matches`}
+              </span>
+            </div>
+
+            {loadingRecs && <p style={styles.empty}>analyzing your playlist vibe...</p>}
+
             {recommendations.map(song => (
               <SongCard
                 key={song.itunes_track_id}
@@ -252,8 +263,10 @@ const removeFromPlaylist = (trackId) => {
                 onAdd={addToPlaylist}
                 isAdded={isInPlaylist(song)}
                 actionLabel="add"
+                compact
               />
             ))}
+
             {!loadingRecs && recommendations.length === 0 && playlist.length > 0 && (
               <p style={styles.empty}>no matches found, try adding more songs</p>
             )}
@@ -265,49 +278,71 @@ const removeFromPlaylist = (trackId) => {
 
       </div>
     </div>
+
   )
 }
 
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#f8f8fc',
+    background: 'var(--bg)',
+    position: 'relative',
   },
   content: {
     display: 'grid',
-    gridTemplateColumns: '1fr 440px',
+    gridTemplateColumns: 'minmax(0, 1fr) 520px',
     gap: '24px',
-    padding: '24px 32px',
+    padding: '32px',
     maxWidth: '1320px',
     margin: '0 auto',
+    position: 'relative',
+    zIndex: 1,
   },
   searchSection: {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
   },
+  toggleRow: {
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '4px',
+  },
+  toggleBtn: {
+    padding: '12px 26px',
+    borderRadius: '999px',
+    fontSize: '16px',
+    fontWeight: '600',
+    letterSpacing: '0.03em',
+    border: 'none',
+    cursor: 'pointer',
+  },
   searchBar: {
     display: 'flex',
-    gap: '8px',
+    gap: '10px',
   },
   searchInput: {
     flex: 1,
-    height: '48px',
+    height: '56px',
     borderRadius: '12px',
-    border: '1.5px solid #E4E4EC',
+    border: '2px solid var(--wisteria)',
     padding: '0 20px',
-    fontSize: '14px',
-    background: '#ffffff',
-    color: '#16161A',
+    fontSize: '17px',
+    fontWeight: '400',
+    background: 'rgba(78,38,130,0.9)',
+    color: '#FFFFFF',
+    boxShadow: '0 0 20px rgba(188,150,230,0.35), inset 0 2px 8px rgba(15,3,37,0.5)',
   },
   searchBtn: {
-    height: '48px',
-    padding: '0 24px',
+    height: '56px',
+    padding: '0 32px',
     borderRadius: '12px',
-    background: '#5B5FEF',
-    color: '#ffffff',
-    fontSize: '14px',
-    fontWeight: '500',
+    background: 'var(--mint)',
+    color: '#0F0325',
+    fontSize: '17px',
+    fontWeight: '600',
+    letterSpacing: '0.03em',
+    boxShadow: '0 0 16px rgba(127,227,216,0.25)',
   },
   results: {
     display: 'flex',
@@ -319,109 +354,146 @@ const styles = {
     gap: '16px',
   },
   panel: {
-    background: '#ffffff',
+    position: 'relative',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'blur(16px) saturate(1.6)',
+    WebkitBackdropFilter: 'blur(16px) saturate(1.6)',
     borderRadius: '16px',
-    padding: '20px',
-    border: '1px solid #ECECEF',
+    padding: '18px',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-sheen)',
+    overflow: 'hidden',
+  },
+  panelHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '14px',
+  },
+  panelHeaderLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    flex: 1,
+    minWidth: 0,
   },
   panelTitle: {
+    fontFamily: 'var(--font-display)',
+    fontSize: '20px',
+    color: 'var(--text-on-glass)',
+  },
+  countLabel: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#16161A',
-    marginBottom: '4px',
+    color: 'var(--text-on-glass-muted)',
+    flexShrink: 0,
   },
   panelSubtitle: {
-    fontSize: '12px',
-    color: '#9A9AA6',
-    marginBottom: '16px',
+    fontSize: '15px',
+    fontWeight: '600',
+    color: 'var(--text-on-glass)',
+    marginBottom: '18px',
+    opacity: 0.75,
   },
   playlistNameRow: {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
-  marginBottom: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginBottom: '6px',
   },
   playlistNameText: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#16161A',
-    flex: 1,
+    fontFamily: 'var(--font-display)',
+    fontSize: '20px',
+    color: 'var(--text-on-glass)',
     minWidth: 0,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
   playlistNameInput: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#16161A',
-    background: '#FAFAFC',
-    border: '1.5px solid #5B5FEF',
-    borderRadius: '6px',
-    padding: '4px 8px',
+    fontFamily: 'var(--font-display)',
+    fontSize: '20px',
+    color: 'var(--text-on-glass)',
+    background: 'rgba(255,255,255,0.5)',
+    border: '1.5px solid var(--berry)',
+    borderRadius: '7px',
+    padding: '3px 8px',
     outline: 'none',
-    flex: 1,
+    flex: 0.5,
     minWidth: 0,
   },
   pencilIcon: {
     fontSize: '20px',
-    color: '#9A9AA6',
+    color: 'var(--berry)',
     flexShrink: 0,
     cursor: 'pointer',
   },
+  saveRow: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: '14px',
+  },
   empty: {
-    fontSize: '13px',
-    color: '#C4C4CC',
+    fontSize: '14px',
+    fontWeight: '400',
+    color: 'var(--text-on-glass-muted)',
     textAlign: 'center',
     padding: '24px 0',
   },
   playlistItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: '11px',
     padding: '8px 0',
-    borderBottom: '1px solid #F5F5F7',
+    borderBottom: '1px solid rgba(26,7,51,0.1)',
+  },
+  saveBtn: {
+    padding: '12px 22px',
+    borderRadius: '8px',
+    background: 'var(--mint)',
+    color: '#0F0325',
+    fontFamily: 'var(--font-display)',
+    fontSize: '13px',
+    letterSpacing: '0.02em',
+    boxShadow: '0 0 14px rgba(127,227,216,0.3)',
   },
   smallArt: {
-    width: '36px',
-    height: '36px',
-    borderRadius: '6px',
+    width: '55px',
+    height: '50px',
+    borderRadius: '5px',
     objectFit: 'cover',
+    flexShrink: 0,
   },
   itemInfo: {
     flex: 1,
     minWidth: 0,
   },
   itemTitle: {
-    fontSize: '13px',
+    fontSize: '16px',
     fontWeight: '500',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    color: '#16161A',
+    color: 'var(--text-on-glass)',
   },
   itemArtist: {
-    fontSize: '12px',
-    color: '#9A9AA6',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: 'var(--text-on-glass-muted)',
   },
   removeBtn: {
-    background: 'none',
-    color: '#C4C4CC',
-    fontSize: '14px',
-    padding: '4px',
+    background: 'rgba(243,22,81,0.15)',
+    color: 'var(--berry)',
+    fontSize: '18px',
+    fontWeight: '700',
+    width: '32px',
+    height: '32px',
+    borderRadius: '8px',
+    border: '1.5px solid rgba(243,22,81,0.4)',
     flexShrink: 0,
-  },
-  toggleRow: {
-  display: 'flex',
-  gap: '8px',
-  marginBottom: '12px',
-},
-toggleBtn: {
-  padding: '8px 20px',
-  borderRadius: '999px',
-  fontSize: '13px',
-  fontWeight: '500',
-  border: 'none',
-  cursor: 'pointer',
-}
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1,
+  }
 }

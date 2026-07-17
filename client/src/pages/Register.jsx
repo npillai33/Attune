@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import Logo from '../components/Logo'
+import BackgroundNotes from '../components/BackgroundNotes'
 
 export default function Register() {
   const [form, setForm] = useState({ email: '', username: '', password: '' })
@@ -31,10 +33,13 @@ export default function Register() {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.page}>
+      <BackgroundNotes />
       <div style={styles.card}>
-        <h1 style={styles.logo}>attune</h1>
-        <p style={styles.subtitle}>create your account</p>
+        <div style={styles.logoWrap}>
+          <Logo size="nav" />
+        </div>
+        <h2 style={styles.subtitle}>create your account</h2>
 
         {error && <div style={styles.error}>{error}</div>}
 
@@ -62,9 +67,10 @@ export default function Register() {
             placeholder="password"
             value={form.password}
             onChange={handleChange}
+            onKeyDown={e => e.key === 'Enter' && handleSubmit(e)}
           />
           <button
-            style={styles.button}
+            style={{ ...styles.button, opacity: loading ? 0.6 : 1 }}
             onClick={handleSubmit}
             disabled={loading}
           >
@@ -82,74 +88,90 @@ export default function Register() {
 }
 
 const styles = {
-  container: {
+  page: {
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#f8f8fc',
+    background: 'var(--bg)',
+    padding: '24px',
+    position: 'relative',
   },
   card: {
-    background: '#ffffff',
-    borderRadius: '16px',
-    padding: '48px 40px',
+    position: 'relative',
+    zIndex: 1,
+    background: 'var(--glass-bg)',
+    backdropFilter: 'blur(16px) saturate(1.6)',
+    WebkitBackdropFilter: 'blur(16px) saturate(1.6)',
+    borderRadius: '22px',
+    padding: '40px',
     width: '100%',
-    maxWidth: '400px',
-    border: '1px solid #ECECEF',
+    maxWidth: '440px',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-sheen)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
-  logo: {
-    fontSize: '28px',
-    fontWeight: '600',
-    letterSpacing: '-0.03em',
-    color: '#5B5FEF',
-    marginBottom: '8px',
+  logoWrap: {
+    marginBottom: '4px',
   },
   subtitle: {
-    fontSize: '14px',
-    color: '#9A9AA6',
-    marginBottom: '32px',
+    fontFamily: 'var(--font-display)',
+    fontSize: '22px',
+    color: 'var(--text-on-glass)',
+    marginBottom: '28px',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '14px',
+    width: '100%',
   },
   input: {
-    height: '48px',
-    borderRadius: '10px',
-    border: '1.5px solid #E4E4EC',
-    padding: '0 16px',
-    fontSize: '14px',
-    background: '#FAFAFC',
-    color: '#16161A',
+    height: '52px',
+    borderRadius: '11px',
+    border: '2px solid rgba(26,7,51,0.25)',
+    padding: '0 18px',
+    fontSize: '17px',
+    fontWeight: '400',
+    background: 'rgba(255,255,255,0.5)',
+    color: 'var(--text-on-glass)',
     width: '100%',
-    boxSizing: 'border-box',
   },
   button: {
-    height: '48px',
-    borderRadius: '10px',
-    background: '#5B5FEF',
-    color: '#ffffff',
-    fontSize: '14px',
-    fontWeight: '500',
+    height: '52px',
+    borderRadius: '11px',
+    background: '#1A0733',
+    color: 'var(--mint-bright)',
+    fontSize: '18px',
+    fontWeight: '600',
+    letterSpacing: '0.03em',
     marginTop: '8px',
+    boxShadow: '0 3px 14px rgba(26,7,51,0.4)',
   },
   error: {
-    background: '#FEF2F2',
-    color: '#B91C1C',
+    background: 'rgba(243,22,81,0.15)',
+    color: 'var(--berry-deep)',
     padding: '12px 16px',
-    borderRadius: '8px',
-    fontSize: '13px',
+    borderRadius: '9px',
+    fontSize: '15px',
+    fontWeight: '500',
     marginBottom: '16px',
+    border: '1.5px solid rgba(243,22,81,0.35)',
+    width: '100%',
+    textAlign: 'center',
   },
   switch: {
     textAlign: 'center',
-    fontSize: '13px',
-    color: '#9A9AA6',
-    marginTop: '24px',
+    fontSize: '15px',
+    fontWeight: '400',
+    color: 'var(--text-on-glass-muted)',
+    marginTop: '26px',
   },
   link: {
-    color: '#5B5FEF',
-    fontWeight: '500',
+    color: 'var(--berry)',
+    fontWeight: '600',
   },
 }

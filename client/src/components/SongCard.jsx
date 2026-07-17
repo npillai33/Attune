@@ -1,34 +1,50 @@
-export default function SongCard({ song, onAdd, actionLabel = 'add', isAdded = false }) {
+import ScrollingText from './ScrollingText'
+
+export default function SongCard({ song, onAdd, actionLabel = 'add', isAdded = false, compact = false }) {
+  const art = compact ? 56 : 60
+  const btnW = compact ? 76 : 80
+  const btnH = compact ? 36 : 36
+
   return (
-    <div style={styles.card}>
+    <div className="scroll-wrap" style={{ ...styles.card, minHeight: compact ? 'auto' : 92, padding: compact ? '14px' : '0 16px' }}>
       <img
-        src={song.artwork_url || 'https://placehold.co/48x48?text=♪'}
+        src={song.artwork_url || 'https://placehold.co/60x60?text=♪'}
         alt={song.title}
-        style={styles.artwork}
+        style={{ ...styles.artwork, width: art, height: art }}
       />
+
       <div style={styles.info}>
-        <div style={styles.title}>{song.title}</div>
-        <div style={styles.artist}>{song.artist}</div>
-        {song.reason && (
-    <div style={styles.reason}>✦ {song.reason}</div>
-    )}
-    {song.tags && song.tags.length > 0 && (
-    <div style={styles.tags}>
-      {song.tags.map((tag, i) => (
-        <span key={i} style={styles.tag}>{tag}</span>
-      ))}
-    </div>
-    )}
+        <ScrollingText style={{ ...styles.title, fontSize: compact ? 17 : 17 }}>
+          {song.title}
+        </ScrollingText>
+        <div style={{ ...styles.artist, fontSize: compact ? 15 : 14 }}>{song.artist}</div>
+        {song.reason && <div style={styles.reason}>✦ {song.reason}</div>}
+        {song.tags && song.tags.length > 0 && (
+          <div style={styles.tags}>
+            {song.tags.map((tag, i) => (
+              <span key={i} style={styles.tag}>{tag}</span>
+            ))}
+          </div>
+        )}
       </div>
+
       <div style={styles.actions}>
         {song.preview_url && (
-          <audio controls src={song.preview_url} style={styles.audio} />
+          <audio
+            controls
+            src={song.preview_url}
+            style={{ ...styles.audio, width: compact ? 130 : 110 }}
+          />
         )}
         <button
           style={{
             ...styles.addBtn,
-            background: isAdded ? '#E6FAF6' : '#5B5FEF',
-            color: isAdded ? '#00917D' : '#ffffff',
+            width: btnW,
+            height: btnH,
+            fontSize: compact ? 11 : 12,
+            background: isAdded ? 'rgba(26,7,51,0.12)' : 'var(--bubblegum)',
+            color: isAdded ? 'var(--text-on-glass-muted)' : '#1A0733',
+            border: isAdded ? '1px solid rgba(26,7,51,0.22)' : 'none',
           }}
           onClick={() => onAdd(song)}
           disabled={isAdded}
@@ -40,76 +56,74 @@ export default function SongCard({ song, onAdd, actionLabel = 'add', isAdded = f
   )
 }
 
-
 const styles = {
   card: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    padding: '10px 12px',
-    borderRadius: '10px',
-    background: '#FAFAFC',
+    gap: '14px',
+    borderRadius: '14px',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'blur(16px) saturate(1.6)',
+    WebkitBackdropFilter: 'blur(16px) saturate(1.6)',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-sheen)',
     marginBottom: '8px',
   },
   artwork: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '8px',
+    borderRadius: '6px',
     objectFit: 'cover',
     flexShrink: 0,
   },
   info: {
-    flex: 1,
+    flex: '0 1 auto',
     minWidth: 0,
+    marginRight: 'auto',
+    maxWidth: '340px',
   },
   title: {
-    fontSize: '13px',
-    fontWeight: '500',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    color: '#16161A',
+    fontWeight: '600',
+    color: 'var(--text-on-glass)',
   },
   artist: {
-    fontSize: '12px',
-    color: '#9A9AA6',
-    marginTop: '2px',
+    fontWeight: '500',
+    color: 'var(--text-on-glass-muted)',
+    marginTop: '1px',
   },
   reason: {
-  fontSize: '11px',
-  color: '#8A2BE2',
-  marginTop: '3px',
-  fontStyle: 'italic',
+    fontSize: '12px',
+    fontWeight: '600',
+    color: 'var(--berry-deep)',
+    marginTop: '3px',
+    lineHeight: '1.4',
+  },
+  tags: {
+    display: 'flex',
+    gap: '5px',
+    marginTop: '6px',
+    flexWrap: 'wrap',
+  },
+  tag: {
+    fontSize: '11px',
+    fontWeight: '600',
+    padding: '3px 9px',
+    borderRadius: '999px',
+    background: 'rgba(122,63,158,0.16)',
+    color: 'var(--text-on-glass-accent)',
   },
   actions: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '10px',
     flexShrink: 0,
   },
   audio: {
-    height: '28px',
-    width: '140px',
+    height: '32px',
+    width: '110px',
   },
   addBtn: {
-    padding: '6px 14px',
     borderRadius: '8px',
-    fontSize: '12px',
-    fontWeight: '500',
+    fontFamily: 'var(--font-display)',
+    letterSpacing: '0.02em',
     flexShrink: 0,
   },
-  tags: {
-  display: 'flex',
-  gap: '6px',
-  marginTop: '6px',
-  flexWrap: 'wrap',
-},
-tag: {
-  fontSize: '10px',
-  padding: '3px 8px',
-  borderRadius: '999px',
-  background: '#EFEFFC',
-  color: '#5B5FEF',
-  fontWeight: '500',
-}
 }

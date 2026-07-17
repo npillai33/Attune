@@ -117,17 +117,16 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   }
 })
 
-// Generate a cover mood from playlist songs via LLM
 router.post('/generate-cover', authMiddleware, async (req, res) => {
-  const { songs } = req.body
+  const { songs, name } = req.body
 
   if (!songs || songs.length === 0) {
     return res.status(400).json({ error: 'Songs are required' })
   }
 
   try {
-    const mood = await getCoverMoodFromLLM(songs)
-    res.json({ cover: mood })
+    const result = await getCoverMoodFromLLM(songs, name)
+    res.json(result)
   } catch (err) {
     console.error('Cover generation failed:', err)
     res.status(500).json({ error: 'Failed to generate cover' })

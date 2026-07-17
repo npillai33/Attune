@@ -1,17 +1,21 @@
 import { useNavigate } from 'react-router-dom'
+import Logo from '../components/Logo'
+import BackgroundNotes from '../components/BackgroundNotes'
 
 export default function Welcome() {
   const navigate = useNavigate()
 
   return (
     <div style={styles.page}>
+      <BackgroundNotes />
       <div style={styles.hero}>
-        <h1 style={styles.logo}>attune</h1>
-        <p style={styles.tagline}>
+        <Logo size="large" />
+
+        <h1 style={styles.tagline}>
           playlists that build themselves around your vibe
-        </p>
+        </h1>
         <p style={styles.subtext}>
-          add a few songs and get recommendations that match the mood, energy, and feel of your playlist — not just the last song you added.
+          add a few songs and get recommendations that match the mood, energy, and feel of your whole playlist — not just the last song you added.
         </p>
 
         <div style={styles.buttons}>
@@ -33,55 +37,60 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#f8f8fc',
+    background: 'var(--bg)',
     padding: '24px',
+    position: 'relative',
   },
   hero: {
     textAlign: 'center',
-    maxWidth: '520px',
-  },
-  logo: {
-    fontSize: '56px',
-    fontWeight: '700',
-    letterSpacing: '-0.04em',
-    color: '#5B5FEF',
-    marginBottom: '20px',
+    maxWidth: '620px',
+    position: 'relative',
+    zIndex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   tagline: {
-    fontSize: '24px',
-    fontWeight: '600',
-    color: '#16161A',
-    marginBottom: '16px',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.3',
+    fontFamily: 'var(--font-display)',
+    fontSize: '32px',
+    color: 'var(--text-on-dark)',
+    marginTop: '32px',
+    marginBottom: '20px',
+    lineHeight: '1.35',
+    textShadow: '0 0 28px rgba(188,150,230,0.45)',
   },
   subtext: {
-    fontSize: '16px',
-    color: '#6B6B76',
-    lineHeight: '1.6',
-    marginBottom: '36px',
+    fontSize: '19px',
+    fontWeight: '300',
+    color: 'var(--text-on-dark-muted)',
+    lineHeight: '1.65',
+    marginBottom: '42px',
   },
   buttons: {
     display: 'flex',
-    gap: '12px',
+    gap: '14px',
     justifyContent: 'center',
   },
   primaryBtn: {
-    height: '52px',
-    padding: '0 32px',
+    height: '58px',
+    padding: '0 40px',
     borderRadius: '12px',
-    background: '#5B5FEF',
-    color: '#ffffff',
-    fontSize: '15px',
-    fontWeight: '600',
+    background: 'var(--mint)',
+    color: '#0F0325',
+    fontFamily: 'var(--font-display)',
+    fontSize: '16px',
+    letterSpacing: '0.02em',
+    boxShadow: '0 0 30px rgba(127,227,216,0.5)',
   },
   secondaryBtn: {
-    height: '52px',
-    padding: '0 32px',
+    height: '58px',
+    padding: '0 40px',
     borderRadius: '12px',
-    background: '#EFEFFC',
-    color: '#5B5FEF',
-    fontSize: '15px',
-    fontWeight: '600',
+    background: 'transparent',
+    color: 'var(--bubblegum)',
+    fontFamily: 'var(--font-display)',
+    fontSize: '16px',
+    letterSpacing: '0.02em',
+    border: '2px solid rgba(255,143,199,0.55)',
   },
 }

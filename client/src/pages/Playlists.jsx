@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import BackgroundNotes from '../components/BackgroundNotes'
 import { getCoverStyle } from '../covers'
 
 export default function Playlists() {
@@ -28,7 +29,8 @@ export default function Playlists() {
     }
   }
 
-  const deletePlaylist = async (id) => {
+  const deletePlaylist = async (e, id) => {
+    e.stopPropagation()
     try {
       await axios.delete(`http://localhost:3001/api/playlists/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -41,11 +43,12 @@ export default function Playlists() {
 
   return (
     <div style={styles.page}>
+      <BackgroundNotes />
       <Navbar />
       <div style={styles.content}>
         <div style={styles.header}>
           <h1 style={styles.title}>your playlists</h1>
-          <button style={styles.newBtn} onClick={() => navigate('/')}>
+          <button style={styles.newBtn} onClick={() => navigate('/home')}>
             + new playlist
           </button>
         </div>
@@ -53,7 +56,10 @@ export default function Playlists() {
         {loading && <p style={styles.empty}>loading...</p>}
 
         {!loading && playlists.length === 0 && (
-          <p style={styles.empty}>no playlists yet — build one on the home page</p>
+          <div style={styles.emptyCard}>
+            <p style={styles.emptyText}>no playlists yet</p>
+            <p style={styles.emptySub}>build one on the home page and save it here</p>
+          </div>
         )}
 
         <div style={styles.grid}>
@@ -64,7 +70,7 @@ export default function Playlists() {
               onClick={() => navigate(`/playlists/${playlist.id}`)}
             >
               <div style={styles.cardLeft}>
-                <div style={{ ...styles.cardIcon, background: getCoverStyle(playlist.cover) }}></div>
+                <div style={{ ...styles.cardIcon, background: getCoverStyle(playlist.cover) }} />
                 <div style={styles.cardInfo}>
                   <p style={styles.cardName}>{playlist.name}</p>
                   <p style={styles.cardMeta}>{playlist.song_count} songs</p>
@@ -84,91 +90,134 @@ export default function Playlists() {
   )
 }
 
-
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#f8f8fc',
+    background: 'var(--bg)',
+    position: 'relative',
   },
   content: {
-    maxWidth: '800px',
+    maxWidth: '860px',
     margin: '0 auto',
-    padding: '32px',
+    padding: '36px 32px',
+    position: 'relative',
+    zIndex: 1,
   },
   header: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '24px',
+    marginBottom: '28px',
   },
   title: {
-    fontSize: '22px',
-    fontWeight: '600',
-    color: '#16161A',
-    letterSpacing: '-0.02em',
+    fontFamily: 'var(--font-display)',
+    fontSize: '30px',
+    color: 'var(--text-on-dark)',
+    textShadow: '0 0 24px rgba(188,150,230,0.4)',
   },
   newBtn: {
-    height: '40px',
-    padding: '0 20px',
-    borderRadius: '10px',
-    background: '#5B5FEF',
-    color: '#ffffff',
-    fontSize: '14px',
-    fontWeight: '500',
+    height: '48px',
+    padding: '0 26px',
+    borderRadius: '11px',
+    background: 'var(--mint)',
+    color: '#0F0325',
+    fontSize: '17px',
+    fontWeight: '600',
+    letterSpacing: '0.03em',
+    boxShadow: '0 0 20px rgba(127,227,216,0.4)',
   },
   grid: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '14px',
   },
   card: {
-    background: '#ffffff',
-    borderRadius: '12px',
+    position: 'relative',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'blur(16px) saturate(1.6)',
+    WebkitBackdropFilter: 'blur(16px) saturate(1.6)',
+    borderRadius: '18px',
     padding: '20px',
-    border: '1px solid #ECECEF',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-sheen)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     cursor: 'pointer',
-    transition: 'border-color 0.15s ease',
+    overflow: 'hidden',
   },
   cardLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: '16px',
+    gap: '18px',
+    minWidth: 0,
   },
   cardIcon: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '10px',
+    width: '62px',
+    height: '62px',
+    borderRadius: '12px',
     flexShrink: 0,
+    boxShadow: '0 3px 12px rgba(15,3,37,0.3)',
   },
   cardInfo: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    gap: '3px',
+    minWidth: 0,
   },
   cardName: {
-    fontSize: '15px',
-    fontWeight: '600',
-    color: '#16161A',
+    fontFamily: 'var(--font-display)',
+    fontSize: '19px',
+    color: 'var(--text-on-glass)',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   cardMeta: {
-    fontSize: '13px',
-    color: '#9A9AA6',
+    fontSize: '15px',
+    fontWeight: '500',
+    color: 'var(--text-on-glass-muted)',
   },
   deleteBtn: {
-    fontSize: '13px',
-    color: '#9A9AA6',
-    background: 'none',
-    padding: '6px 12px',
-    borderRadius: '8px',
-    border: '1px solid #ECECEF',
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#FFFFFF',
+    background: 'var(--berry)',
+    padding: '10px 20px',
+    borderRadius: '9px',
+    border: 'none',
+    flexShrink: 0,
+    letterSpacing: '0.02em',
+    boxShadow: '0 2px 10px rgba(243,22,81,0.4)',
+  },
+  emptyCard: {
+    position: 'relative',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'blur(16px) saturate(1.6)',
+    WebkitBackdropFilter: 'blur(16px) saturate(1.6)',
+    borderRadius: '18px',
+    padding: '56px 24px',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-sheen)',
+    textAlign: 'center',
+    overflow: 'hidden',
+  },
+  emptyText: {
+    fontFamily: 'var(--font-display)',
+    fontSize: '20px',
+    color: 'var(--text-on-glass)',
+    marginBottom: '8px',
+  },
+  emptySub: {
+    fontSize: '16px',
+    fontWeight: '400',
+    color: 'var(--text-on-glass-muted)',
   },
   empty: {
-    fontSize: '14px',
-    color: '#C4C4CC',
+    fontSize: '17px',
+    fontWeight: '500',
+    color: 'var(--text-on-dark-muted)',
     textAlign: 'center',
-    padding: '48px 0',
+    padding: '56px 0',
   },
 }
