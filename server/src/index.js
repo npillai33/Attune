@@ -9,10 +9,20 @@ const recommendationRoutes = require('./routes/recommendations')
 const playlistRoutes = require('./routes/playlists')
 const vibeRoutes = require('./routes/vibe')
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.CLIENT_URL,
+].filter(Boolean)
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.includes(origin)) return callback(null, true)
+    callback(new Error('Not allowed by CORS'))
+  },
   credentials: true
 }))
+
 app.use(express.json())
 
 app.use('/api/auth', authRoutes)
