@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
+import api from '../api'
 import Navbar from '../components/Navbar'
 import SongCard from '../components/SongCard'
 import { useAuth } from '../context/AuthContext'
@@ -50,8 +51,8 @@ export default function Home() {
   if (!query.trim()) return
   setSearching(true)
   try {
-    const res = await axios.post(
-      'http://localhost:3001/api/vibe/search',
+    const res = await api.post(
+      '/api/vibe/search',
       { vibe: query },
       { headers: { Authorization: `Bearer ${token}` } }
     )
@@ -70,8 +71,8 @@ export default function Home() {
   }
   setLoadingRecs(true)
   try {
-    const res = await axios.post(
-      'http://localhost:3001/api/recommendations/playlist',
+    const res = await api.post(
+      '/api/recommendations/playlist',
       { songs: updatedPlaylist },
       { headers: { Authorization: `Bearer ${token}` } }
     )
@@ -86,8 +87,8 @@ export default function Home() {
 const savePlaylist = async () => {
   if (playlist.length === 0) return
   try {
-    await axios.post(
-      'http://localhost:3001/api/playlists',
+    await api.post(
+      '/api/playlists',
       { name: playlistName, songs: playlist },
       { headers: { Authorization: `Bearer ${token}` } }
     )

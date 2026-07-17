@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../api'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import BackgroundNotes from '../components/BackgroundNotes'
@@ -18,7 +18,7 @@ export default function Playlists() {
 
   const fetchPlaylists = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/playlists', {
+      const res = await api.get('/api/playlists', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setPlaylists(res.data.playlists)
@@ -32,7 +32,7 @@ export default function Playlists() {
   const deletePlaylist = async (e, id) => {
     e.stopPropagation()
     try {
-      await axios.delete(`http://localhost:3001/api/playlists/${id}`, {
+      await api.delete(`/api/playlists/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setPlaylists(playlists.filter(p => p.id !== id))

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../api'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import { COVERS, COVER_LABELS, COVER_KEYS, getCoverStyle, buildCustomCover } from '../covers'
@@ -28,7 +28,7 @@ export default function PlaylistDetail() {
 
   const fetchPlaylist = async () => {
     try {
-      const res = await axios.get(`http://localhost:3001/api/playlists/${id}`, {
+      const res = await api.get(`/api/playlists/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setPlaylist(res.data.playlist)
@@ -45,8 +45,8 @@ export default function PlaylistDetail() {
     setEditingName(false)
     if (nameValue.trim() === playlist.name) return
     try {
-      const res = await axios.patch(
-        `http://localhost:3001/api/playlists/${id}`,
+      const res = await api.patch(
+        `/api/playlists/${id}`,
         { name: nameValue.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -58,8 +58,8 @@ export default function PlaylistDetail() {
 
   const setCover = async (coverKey) => {
     try {
-      const res = await axios.patch(
-        `http://localhost:3001/api/playlists/${id}`,
+      const res = await api.patch(
+        `/api/playlists/${id}`,
         { cover: coverKey },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -74,8 +74,8 @@ export default function PlaylistDetail() {
     if (songs.length === 0) return
     setGenerating(true)
     try {
-      const res = await axios.post(
-        'http://localhost:3001/api/playlists/generate-cover',
+      const res = await api.post(
+        '/api/playlists/generate-cover',
         { songs, name: playlist?.name },
         { headers: { Authorization: `Bearer ${token}` } }
       )
