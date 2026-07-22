@@ -1,14 +1,16 @@
-Attune - Technical Documentation
-
+# Attune - Technical Documentation
+### Project Overview
 A full-stack music playlist builder that recommends songs based on the combined vibe of your entire playlist — not just the last track you added. 
 As you build a playlist, an LLM analyzes everything in it and suggests songs that match the overall mood, energy, and feel. 
 Also supports free-text "vibe search" (ex: type "sad rainy day" and get matching songs).
 
-How it works:
+#### How it works:
+
 The core idea is that each playlist has a cumulative feel based on your listening/music taste. 
 Most recommendation features react to a single seed track while Attune sends the whole playlist to an LLM on every add, so recommendations shift as the collection's character evolves.
 
-Recommendation flow:
+
+### Recommendation flow:
 1. User adds songs to a playlist using either song/vibe search.
 2. The full playlist is sent to the LLM (Claude), which suggests tracks that fit the combined vibe and returns a short reason for each.
 3. Each suggestion is verified against the iTunes Search API to attach real, playable data (album art, 30s preview, deep links).
@@ -17,9 +19,7 @@ Recommendation flow:
 Vibe search works similarly — a free-text mood prompt goes to the LLM, which returns songs tagged with mood descriptors, each verified against iTunes.
 Playback uses iTunes 30-second previews plus "open in Spotify" deep links, so no copyrighted audio is streamed or stored.
 
-
-Tech stack
-
+### Tech stack
 - Frontend: React (Vite), React Router, Axios — deployed on Vercel 
 
 - Backend: Node / Express — deployed on Render 
@@ -30,7 +30,8 @@ Tech stack
 
 - External APIs: Anthropic (recommendations + vibe search + gradient cover generation), iTunes Search API (playable song data)
 
-Notable implementation details:
+
+#### Notable implementation details:
 
 - Auth is hand-rolled rather than using a managed provider — bcrypt password hashing, JWT issuance/verification middleware — to demonstrate the underlying mechanics.
 
@@ -41,7 +42,8 @@ and AI-generated gradient covers are returned as structured data (custom:#hex:#h
 
 - API base URL is environment-configured so the same frontend build points at localhost in dev and the deployed backend in production.
 
-Project structure
+### Project structure
+~~~
 attune/
 ├── client/                 # React frontend
 │   ├── src/
@@ -58,12 +60,12 @@ attune/
         ├── services/       # llm.js (Claude calls), itunes.js (song verification)
         ├── middleware/     # JWT auth middleware
         └── db/             # pg pool + schema
-        
-Running locally - 
+~~~
+#### Running locally
 Prerequisites: Node.js, a PostgreSQL database (this project uses Neon), and an Anthropic API key.
 
-1. Clone and install
-</> bash
+#### 1. Clone and install
+~~~ bash 
 git clone https://github.com/npillai33/Attune.git
 cd Attune
 
@@ -74,25 +76,30 @@ npm install
 # frontend
 cd ../client
 npm install
+~~~
 
-2. Configure environment variables
+#### 2. Configure environment variables
 Create server/.env:
-DATABASE_URL=your_postgres_connection_string
+~~~
+DATABASE_URL=postgresql://user:password@host/dbname
 JWT_SECRET=any_long_random_string
 ANTHROPIC_API_KEY=your_anthropic_key
 PORT=3001
 CLIENT_URL=http://localhost:5173
-
+~~~
 Create client/.env:
+~~~
 VITE_API_URL=http://localhost:3001
+~~~
 
-3. Set up the database
+#### 3. Set up the database
 Run the schema against your Postgres instance to create the tables:
-</> bash
+~~~bash
 psql "$DATABASE_URL" -f server/src/db/schema.sql
+~~~
 
-5. Run
-</> bash
+#### 4. Run
+~~~bash
 # terminal 1 — backend
 cd server
 npm run dev
@@ -100,14 +107,15 @@ npm run dev
 # terminal 2 — frontend
 cd client
 npm run dev
+~~~
 
 Frontend runs at http://localhost:5173, backend at http://localhost:3001.
 
-Deployment
-Frontend deploys to Vercel with root directory set to client and VITE_API_URL pointing at the deployed backend.
-Backend deploys to Render with root directory set to server and the same environment variables as local (minus PORT, which Render provides). 
+### Deployment
+- Frontend deploys to Vercel with root directory set to client and VITE_API_URL pointing at the deployed backend.
+- Backend deploys to Render with root directory set to server and the same environment variables as local (minus PORT, which Render provides). 
 CLIENT_URL is set to the deployed frontend URL for CORS.
 
-Notes:
+### Notes:
 The recommendation and vibe-search engines were originally built on a cosine-similarity/tag-vector approach and later moved to an LLM, 
 which handled mixed-genre playlists and nuanced mood prompts significantly better.
