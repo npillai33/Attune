@@ -18,6 +18,7 @@ app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true)
     if (allowedOrigins.includes(origin)) return callback(null, true)
+    if (/^https:\/\/attune-.*\.vercel\.app$/.test(origin)) return callback(null, true)
     callback(new Error('Not allowed by CORS'))
   },
   credentials: true
